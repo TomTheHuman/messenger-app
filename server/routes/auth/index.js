@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 
 const cookieConfig = {
   httpOnly: true,
-  maxAge: 86400,
+  maxAge: 86400000,
 };
 
 router.post("/register", async (req, res, next) => {
@@ -80,8 +80,8 @@ router.post("/login", async (req, res, next) => {
 });
 
 router.delete("/logout", (req, res, next) => {
+  res.clearCookie("jwt", res.cookie.token, cookieConfig);
   res.sendStatus(204);
-  res.clearCookie("jwt");
 });
 
 router.get("/user", (req, res, next) => {
