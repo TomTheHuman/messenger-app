@@ -80,7 +80,7 @@ router.post("/login", async (req, res, next) => {
 });
 
 router.delete("/logout", (req, res, next) => {
-  res.clearCookie("jwt", res.cookie.token, cookieConfig);
+  res.clearCookie("jwt", cookieConfig);
   res.sendStatus(204);
 });
 
