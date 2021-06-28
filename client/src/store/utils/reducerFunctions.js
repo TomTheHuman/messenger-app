@@ -26,7 +26,6 @@ export const addMessageToStore = (state, payload) => {
 
 // locates message by convo id and message id and marks as read
 export const updateMessageInStore = (state, message) => {
-  console.log(state);
   return state.map((convo) => {
     if (convo.id === message.conversationId) {
       const convoCopy = { ...convo };
