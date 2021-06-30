@@ -50,9 +50,6 @@ router.get("/", async (req, res, next) => {
 
     for (let i = 0; i < conversations.length; i++) {
       const convo = conversations[i];
-      // Reverse messages to ascending order
-      convo.messages.reverse();
-
       const convoJSON = convo.toJSON();
 
       // set a property "otherUser" so that frontend will have easier access
