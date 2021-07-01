@@ -13,6 +13,7 @@ const Messages = (props) => {
     if (message.senderId === otherUser.id && message.read === false) {
       const reqBody = {
         message: message,
+        sender: message.senderId,
       };
       await props.updateMessage(reqBody);
     }
@@ -48,8 +49,8 @@ const Messages = (props) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    updateMessage: (message) => {
-      dispatch(updateMessage(message));
+    updateMessage: (body) => {
+      dispatch(updateMessage(body));
     },
   };
 };

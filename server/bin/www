@@ -40,17 +40,35 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("add-online-user", id);
   });
 
-  socket.on("new-message", (data) => {
-    socket.broadcast.emit("new-message", {
-      message: data.message,
-      sender: data.sender,
-    });
+  // join room for each conversation id
+  socket.on("join-rooms", (data) => {
+    for (let i = 0; i < data.convoIds.length; i++) {
+      socket.join(data.convoIds[i]);
+    }
   });
 
-  socket.on("read-message", (body) => {
-    socket.broadcast.emit("read-message", {
-      message: body.message,
-    });
+  // leave room for each conversation id
+  socket.on("leave-rooms", (data) => {
+    for (let i = 0; i < data.convoIds.length; i++) {
+      socket.leave(data.convoIds[i]);
+    }
+  });
+
+  socket.on("new-message", (data) => {
+    if (onlineUsers.includes(data.recipientId)) {
+      socket.to(data.message.conversationId).emit("new-message", {
+        message: data.message,
+        sender: data.sender,
+      });
+    }
+  });
+
+  socket.on("read-message", (data) => {
+    if (onlineUsers.includes(data.sender)) {
+      socket.to(data.message.conversationId).emit("read-message", {
+        message: data.message,
+      });
+    }
   });
 
   socket.on("logout", (id) => {
