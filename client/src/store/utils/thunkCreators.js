@@ -105,11 +105,11 @@ const saveMessageRead = async (body) => {
   return data;
 };
 
-// TODO update message via socket
-// const markMessageRead = (data, body) => {
-//   const { data } = await axios.post("/api/messages", body);
-//   return data;
-// };
+const markMessageRead = (body) => {
+  socket.emit("read-message", {
+    message: body.message,
+  });
+};
 
 export const updateMessage = (body) => async (dispatch) => {
   try {
@@ -118,6 +118,7 @@ export const updateMessage = (body) => async (dispatch) => {
     if (data.read) {
       dispatch(readMessage(body.message));
     }
+    markMessageRead(body);
   } catch (error) {
     console.error(error);
   }

@@ -7,6 +7,7 @@ import { updateMessage } from "../../store/utils/thunkCreators";
 
 const Messages = (props) => {
   const { messages, otherUser, userId } = props;
+  const lastIndex = messages.length - 1;
 
   const handleReadMessage = async (message, otherUser) => {
     if (message.senderId === otherUser.id && message.read === false) {
@@ -19,12 +20,19 @@ const Messages = (props) => {
 
   return (
     <Box>
-      {messages.map((message) => {
+      {messages.map((message, index) => {
         const time = moment(message.createdAt).format("h:mm");
 
         handleReadMessage(message, otherUser);
         return message.senderId === userId ? (
-          <SenderBubble key={message.id} text={message.text} time={time} />
+          <SenderBubble
+            key={message.id}
+            text={message.text}
+            time={time}
+            lastMessage={index === lastIndex}
+            read={message.read}
+            otherUser={otherUser}
+          />
         ) : (
           <OtherUserBubble
             key={message.id}
