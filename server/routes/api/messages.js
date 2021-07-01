@@ -38,24 +38,4 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-// expects {message} in body
-// returns true if updated successfully
-router.patch("/", async (req, res, next) => {
-  let sender = req.body.sender;
-
-  if (!req.body.message.id) {
-    return res.sendStatus(401);
-  }
-
-  let read = Boolean(
-    await Message.update(
-      { read: true },
-      { where: { id: req.body.message.id } }
-    ).catch((error) => {
-      next(error);
-    })
-  );
-  res.json({ read, sender });
-});
-
 module.exports = router;

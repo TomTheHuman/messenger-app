@@ -24,25 +24,6 @@ export const addMessageToStore = (state, payload) => {
   });
 };
 
-// locates message by convo id and message id and marks as read
-export const updateMessageInStore = (state, message) => {
-  console.log(state);
-  return state.map((convo) => {
-    if (convo.id === message.conversationId) {
-      const convoCopy = { ...convo };
-
-      let messageIndex = convoCopy.messages.findIndex(
-        (convoMessage) => convoMessage.id === message.id
-      );
-      convoCopy.messages[messageIndex].read = true;
-
-      return convoCopy;
-    } else {
-      return convo;
-    }
-  });
-};
-
 export const addOnlineUserToStore = (state, id) => {
   return state.map((convo) => {
     if (convo.otherUser.id === id) {
