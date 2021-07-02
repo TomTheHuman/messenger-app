@@ -49,7 +49,7 @@ io.on("connection", (socket) => {
 
   socket.on("read-message", (body) => {
     socket.broadcast.emit("read-message", {
-      message: body.message,
+      conversationId: body.conversationId,
     });
   });
 

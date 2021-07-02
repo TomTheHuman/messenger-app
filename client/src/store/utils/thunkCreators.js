@@ -5,7 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
-  readMessage,
+  readConvo,
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -77,7 +77,6 @@ const saveMessage = async (body) => {
 const sendMessage = (data, body) => {
   socket.emit("new-message", {
     message: data.message,
-    recipientId: body.recipientId,
     sender: data.sender,
   });
 };
@@ -91,7 +90,7 @@ export const postMessage = (body) => async (dispatch) => {
     if (!body.conversationId) {
       dispatch(addConversation(body.recipientId, data.message));
     } else {
-      dispatch(setNewMessage(data.message));
+      dispatch(setNewMessage(data.message, body.currentUser));
     }
 
     sendMessage(data, body);
@@ -100,25 +99,27 @@ export const postMessage = (body) => async (dispatch) => {
   }
 };
 
-const saveMessageRead = async (body) => {
+const saveReadMessages = async (body) => {
   const { data } = await axios.patch("/api/messages", body);
   return data;
 };
 
-const markMessageRead = (body) => {
+const markMessagesRead = (body) => {
+  // send true to update recipient's unread message count
   socket.emit("read-message", {
-    message: body.message,
+    conversationId: body.conversationId,
   });
 };
 
-export const updateMessage = (body) => async (dispatch) => {
+export const patchMessages = (body) => async (dispatch) => {
   try {
-    const data = await saveMessageRead(body);
+    const data = await saveReadMessages(body);
 
     if (data.read) {
-      dispatch(readMessage(body.message));
+      // send false to prevent my unread message count from updating
+      dispatch(readConvo(body.conversationId));
     }
-    markMessageRead(body);
+    markMessagesRead(body);
   } catch (error) {
     console.error(error);
   }

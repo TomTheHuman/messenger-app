@@ -1,11 +1,15 @@
 export const addMessageToStore = (state, payload) => {
-  const { message, sender } = payload;
+  const { message, currentUser, sender } = payload;
   // if sender isn't null, that means the message needs to be put in a brand new convo
   if (sender !== null) {
+    const unread = [];
+    unread.push(0);
+
     const newConvo = {
       id: message.conversationId,
       otherUser: sender,
       messages: [message],
+      indexOfUnread: [unread],
     };
     newConvo.latestMessageText = message.text;
     return [newConvo, ...state];
@@ -15,6 +19,11 @@ export const addMessageToStore = (state, payload) => {
     if (convo.id === message.conversationId) {
       const convoCopy = { ...convo };
       convoCopy.messages.push(message);
+
+      if (!currentUser) {
+        const index = convoCopy.messages.length - 1;
+        convoCopy.indexOfUnread.push(index);
+      }
       convoCopy.latestMessageText = message.text;
 
       return convoCopy;
@@ -25,15 +34,18 @@ export const addMessageToStore = (state, payload) => {
 };
 
 // locates message by convo id and message id and marks as read
-export const updateMessageInStore = (state, message) => {
+export const readConvoInStore = (state, payload) => {
+  const { conversationId } = payload;
+
   return state.map((convo) => {
-    if (convo.id === message.conversationId) {
+    if (convo.id === conversationId) {
       const convoCopy = { ...convo };
 
-      let messageIndex = convoCopy.messages.findIndex(
-        (convoMessage) => convoMessage.id === message.id
-      );
-      convoCopy.messages[messageIndex].read = true;
+      for (let i = 0; i < convoCopy.indexOfUnread.length; i++) {
+        let index = convoCopy.indexOfUnread[i];
+        convoCopy.messages[index].read = true;
+      }
+      convoCopy.indexOfUnread = [];
 
       return convoCopy;
     } else {
