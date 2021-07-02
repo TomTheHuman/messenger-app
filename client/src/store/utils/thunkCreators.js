@@ -74,9 +74,11 @@ const saveMessage = async (body) => {
   return data;
 };
 
+// onSenderClient lets the reducer know where the request originated
 const sendMessage = (data, body) => {
   socket.emit("new-message", {
     message: data.message,
+    onSenderClient: false,
     sender: data.sender,
   });
 };
@@ -90,7 +92,7 @@ export const postMessage = (body) => async (dispatch) => {
     if (!body.conversationId) {
       dispatch(addConversation(body.recipientId, data.message));
     } else {
-      dispatch(setNewMessage(data.message, body.currentUser));
+      dispatch(setNewMessage(data.message, true));
     }
 
     sendMessage(data, body);
@@ -104,20 +106,19 @@ const saveReadMessages = async (body) => {
   return data;
 };
 
+// onSenderClient lets the reducer know where the request originated
 const markMessagesRead = (body) => {
-  // send true to update recipient's unread message count
   socket.emit("read-message", {
     conversationId: body.conversationId,
+    onSenderClient: false,
   });
 };
 
 export const patchMessages = (body) => async (dispatch) => {
   try {
     const data = await saveReadMessages(body);
-
     if (data.read) {
-      // send false to prevent my unread message count from updating
-      dispatch(readConvo(body.conversationId));
+      dispatch(readConvo(body.conversationId, true));
     }
     markMessagesRead(body);
   } catch (error) {

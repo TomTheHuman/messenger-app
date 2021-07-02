@@ -27,21 +27,21 @@ export const gotConversations = (conversations) => {
   };
 };
 
-export const setNewMessage = (message, currentUser, sender) => {
+export const setNewMessage = (message, onSenderClient, sender) => {
   return {
     type: SET_MESSAGE,
     payload: {
       message,
-      currentUser: currentUser || null,
+      onSenderClient,
       sender: sender || null,
     },
   };
 };
 
-export const readConvo = (conversationId) => {
+export const readConvo = (conversationId, onSenderClient) => {
   return {
     type: READ_CONVO,
-    payload: { conversationId },
+    payload: { conversationId, onSenderClient },
   };
 };
 

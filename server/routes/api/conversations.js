@@ -64,15 +64,28 @@ router.get("/", async (req, res, next) => {
         delete convoJSON.user2;
       }
 
-      // find indexes of all unread messages
-      const indexOfUnread = convoJSON.messages.reduce(
-        (indices, message, index) => {
-          if (!message.read) indices.push(index);
-          return indices;
-        },
-        []
-      );
-      convoJSON.indexOfUnread = indexOfUnread;
+      // find all unread messages
+      // add to respective list based on sender
+      const unreadMessages = {
+        otherUser: [],
+        currentUser: [],
+      };
+
+      for (let i = 0; i < convoJSON.messages.length; i++) {
+        if (!convoJSON.messages[i].read) {
+          let message = {
+            index: i,
+            senderId: convoJSON.messages[i].senderId,
+          };
+          if (convoJSON.messages[i].senderId !== convoJSON.otherUser.id) {
+            unreadMessages.currentUser.push(message);
+          } else {
+            unreadMessages.otherUser.push(message);
+          }
+        }
+      }
+
+      convoJSON.unreadMessages = unreadMessages;
 
       // set property for online status of the other user
       if (onlineUsers.includes(convoJSON.otherUser.id)) {

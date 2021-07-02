@@ -75,7 +75,7 @@ const ChatContent = (props) => {
 
   const { conversation } = props;
   const { latestMessageText, otherUser } = conversation;
-  const unreadCount = conversation.indexOfUnread.length;
+  const unreadCount = conversation.unreadMessages.otherUser.length;
 
   return (
     <Box className={classes.root}>

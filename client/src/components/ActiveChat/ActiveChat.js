@@ -59,4 +59,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps, null)(ActiveChat);
+export default connect(mapStateToProps)(ActiveChat);
