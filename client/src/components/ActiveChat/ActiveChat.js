@@ -34,7 +34,11 @@ const ActiveChat = (props) => {
             online={conversation.otherUser.online || false}
           />
           <Box className={classes.chatContainer}>
-            <Messages userId={user.id} />
+            <Messages
+              messages={[...conversation.messages]}
+              otherUser={conversation.otherUser}
+              userId={user.id}
+            />
             <Input
               otherUser={conversation.otherUser}
               conversationId={conversation.id}
@@ -59,4 +63,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps)(ActiveChat);
+export default connect(mapStateToProps, null)(ActiveChat);

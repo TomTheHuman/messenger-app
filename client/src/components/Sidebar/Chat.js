@@ -27,7 +27,6 @@ class Chat extends Component {
   render() {
     const { classes } = this.props;
     const otherUser = this.props.conversation.otherUser;
-
     return (
       <Box
         onClick={() => this.handleClick(this.props.conversation)}
@@ -45,13 +44,6 @@ class Chat extends Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  return {
-    user: state.user,
-    conversations: state.conversations,
-  };
-};
-
 const mapDispatchToProps = (dispatch) => {
   return {
     setActiveChat: (id) => {
@@ -60,7 +52,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withStyles(styles)(Chat));
+export default connect(null, mapDispatchToProps)(withStyles(styles)(Chat));

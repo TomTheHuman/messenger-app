@@ -3,34 +3,34 @@ import { Box } from "@material-ui/core";
 import { SenderBubble, OtherUserBubble } from "../ActiveChat";
 import moment from "moment";
 import { connect } from "react-redux";
-import { patchMessages } from "../../store/utils/thunkCreators";
-
-async function updateMessages(props, reqBody) {
-  if (props.conversation.unreadMessages.otherUser.length > 0) {
-    await props.patchMessages(reqBody);
-  }
-}
+import { updateMessage } from "../../store/utils/thunkCreators";
 
 const Messages = (props) => {
-  const { userId } = props;
-  const { messages, otherUser, id } = props.conversation;
+  const { messages, otherUser, userId } = props;
   const lastIndex = messages.length - 1;
 
-  // run update messages whenever a chat page is rendered
-  updateMessages(props, reqBody);
+  const handleReadMessage = async (message, otherUser) => {
+    if (message.senderId === otherUser.id && message.read === false) {
+      const reqBody = {
+        message: message,
+        sender: message.senderId,
+      };
+      await props.updateMessage(reqBody);
+    }
+  };
 
   return (
     <Box>
       {messages.map((message, index) => {
         const time = moment(message.createdAt).format("h:mm");
-        const lastMessage = index === lastIndex;
 
+        handleReadMessage(message, otherUser);
         return message.senderId === userId ? (
           <SenderBubble
             key={message.id}
             text={message.text}
             time={time}
-            lastMessage={lastMessage}
+            lastMessage={index === lastIndex}
             read={message.read}
             otherUser={otherUser}
           />
@@ -47,24 +47,12 @@ const Messages = (props) => {
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    user: state.user,
-    conversation:
-      state.conversations &&
-      state.conversations.find(
-        (conversation) =>
-          conversation.otherUser.username === state.activeConversation
-      ),
-  };
-};
-
 const mapDispatchToProps = (dispatch) => {
   return {
-    patchMessages: (body) => {
-      dispatch(patchMessages(body));
+    updateMessage: (body) => {
+      dispatch(updateMessage(body));
     },
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Messages);
+export default connect(null, mapDispatchToProps)(Messages);

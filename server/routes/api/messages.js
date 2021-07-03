@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { Conversation, Message, User } = require("../../db/models");
+const { Conversation, Message } = require("../../db/models");
 const onlineUsers = require("../../onlineUsers");
 
 // expects {recipientId, text } in body
@@ -41,25 +41,21 @@ router.post("/", async (req, res, next) => {
 // expects {message} in body
 // returns true if updated successfully
 router.patch("/", async (req, res, next) => {
-  if (!req.body.conversationId) {
+  let sender = req.body.sender;
+
+  if (!req.body.message.id) {
     return res.sendStatus(401);
   }
 
   let read = Boolean(
     await Message.update(
       { read: true },
-      {
-        include: [{ model: Conversation }, { model: User }],
-        where: {
-          conversationId: req.body.conversationId,
-          senderId: req.body.otherUser.id,
-        },
-      }
+      { where: { id: req.body.message.id } }
     ).catch((error) => {
       next(error);
     })
   );
-  res.json({ read });
+  res.json({ read, sender });
 });
 
 module.exports = router;

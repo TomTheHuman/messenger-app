@@ -58,7 +58,6 @@ io.on("connection", (socket) => {
     if (onlineUsers.includes(data.recipientId)) {
       socket.to(data.message.conversationId).emit("new-message", {
         message: data.message,
-        onSenderClient: data.onSenderClient,
         sender: data.sender,
       });
     }
@@ -67,8 +66,7 @@ io.on("connection", (socket) => {
   socket.on("read-message", (data) => {
     if (onlineUsers.includes(data.sender)) {
       socket.to(data.message.conversationId).emit("read-message", {
-        conversationId: body.conversationId,
-        onSenderClient: body.onSenderClient,
+        message: data.message,
       });
     }
   });

@@ -75,7 +75,10 @@ const ChatContent = (props) => {
 
   const { conversation } = props;
   const { latestMessageText, otherUser } = conversation;
-  const unreadCount = conversation.unreadMessages.otherUser.length;
+  const unreadMessages = conversation.messages.filter((message) => {
+    return !message.read && message.senderId === otherUser.id;
+  });
+  const unreadCount = unreadMessages.length;
 
   return (
     <Box className={classes.root}>
@@ -91,19 +94,20 @@ const ChatContent = (props) => {
           {latestMessageText}
         </Typography>
       </Box>
-      {unreadCount > 0 && <UnreadCount unread={unreadCount} />}
+      {unreadCount > 0 && <UnreadCount count={unreadCount} />}
     </Box>
   );
 };
 
 const UnreadCount = (props) => {
   const classes = useStyles();
+  const { count } = props;
 
   return (
     <Box className={classes.countContainer}>
       <Box>
         <Box className={classes.bubble}>
-          <Typography className={classes.bubbleText}>{props.unread}</Typography>
+          <Typography className={classes.bubbleText}>{count}</Typography>
         </Box>
       </Box>
     </Box>
