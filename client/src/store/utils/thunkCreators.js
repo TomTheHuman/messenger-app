@@ -86,6 +86,7 @@ const sendMessage = (data, body) => {
     message: data.message,
     onSenderClient: false,
     sender: data.sender,
+    recipientId: body.recipientId,
   });
 };
 
@@ -117,6 +118,7 @@ const markMessagesRead = (body) => {
   socket.emit("read-message", {
     conversationId: body.conversationId,
     onSenderClient: false,
+    recipientId: body.otherUser.id,
   });
 };
 
