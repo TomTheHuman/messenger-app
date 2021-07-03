@@ -25,12 +25,22 @@ const Messages = (props) => {
   // run update messages whenever a chat page is rendered
   updateMessages(props, reqBody);
 
+  const handleReadMessage = async (message, otherUser) => {
+    if (message.senderId === otherUser.id && message.read === false) {
+      const reqBody = {
+        message: message,
+      };
+      await props.updateMessage(reqBody);
+    }
+  };
+
   return (
     <Box>
       {messages.map((message, index) => {
         const time = moment(message.createdAt).format("h:mm");
         const lastMessage = index === lastIndex;
 
+        handleReadMessage(message, otherUser);
         return message.senderId === userId ? (
           <SenderBubble
             key={message.id}
