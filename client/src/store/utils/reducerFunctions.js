@@ -1,12 +1,29 @@
 export const addMessageToStore = (state, payload) => {
-  const { message, sender } = payload;
+  const { message, onSenderClient, sender } = payload;
   // if sender isn't null, that means the message needs to be put in a brand new convo
   if (sender !== null) {
+    const unread = {
+      index: 0,
+      senderId: message.senderId,
+    };
+
     const newConvo = {
       id: message.conversationId,
       otherUser: sender,
       messages: [message],
+      unreadMessages: {
+        currentUser: [],
+        otherUser: [],
+      },
     };
+
+    // update unread messages store based on where request originated
+    if (onSenderClient) {
+      newConvo.unreadMessages.currentUser.push(unread);
+    } else {
+      newConvo.unreadMessages.otherUser.push(unread);
+    }
+
     newConvo.latestMessageText = message.text;
     return [newConvo, ...state];
   }
@@ -15,6 +32,19 @@ export const addMessageToStore = (state, payload) => {
     if (convo.id === message.conversationId) {
       const convoCopy = { ...convo };
       convoCopy.messages.push(message);
+
+      // update unread messages store based on where request originated
+      const index = convoCopy.messages.length - 1;
+      let unread = {
+        index: index,
+        senderId: message.senderId,
+      };
+      if (onSenderClient) {
+        convoCopy.unreadMessages.currentUser.push(unread);
+      } else {
+        convoCopy.unreadMessages.otherUser.push(unread);
+      }
+
       convoCopy.latestMessageText = message.text;
 
       return convoCopy;
@@ -25,16 +55,27 @@ export const addMessageToStore = (state, payload) => {
 };
 
 // locates message by convo id and message id and marks as read
-export const updateMessageInStore = (state, message) => {
-  console.log(state);
+export const readConvoInStore = (state, payload) => {
+  const { conversationId, onSenderClient } = payload;
+
   return state.map((convo) => {
-    if (convo.id === message.conversationId) {
+    if (convo.id === conversationId) {
       const convoCopy = { ...convo };
 
-      let messageIndex = convoCopy.messages.findIndex(
-        (convoMessage) => convoMessage.id === message.id
-      );
-      convoCopy.messages[messageIndex].read = true;
+      // update unread messages store based on where request originated
+      if (onSenderClient) {
+        for (let i = 0; i < convoCopy.unreadMessages.otherUser.length; i++) {
+          let index = convoCopy.unreadMessages.otherUser[i].index;
+          convoCopy.messages[index].read = true;
+        }
+        convoCopy.unreadMessages.otherUser = [];
+      } else {
+        for (let i = 0; i < convoCopy.unreadMessages.currentUser.length; i++) {
+          let index = convoCopy.unreadMessages.currentUser[i].index;
+          convoCopy.messages[index].read = true;
+        }
+        convoCopy.unreadMessages.currentUser = [];
+      }
 
       return convoCopy;
     } else {

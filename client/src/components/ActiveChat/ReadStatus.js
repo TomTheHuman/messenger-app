@@ -23,18 +23,16 @@ const useStyles = makeStyles(() => ({
 
 const ReadStatus = (props) => {
   const classes = useStyles();
-  const { lastMessage, read, otherUser } = props;
+  const { read, otherUser } = props;
 
   return (
-    lastMessage && (
-      <Box className={classes.root}>
-        {read ? (
-          <StatusUserAvatar otherUser={otherUser} />
-        ) : (
-          <span className={classes.status}>Delivered</span>
-        )}
-      </Box>
-    )
+    <Box className={classes.root}>
+      {read ? (
+        <StatusUserAvatar otherUser={otherUser} />
+      ) : (
+        <span className={classes.status}>Delivered</span>
+      )}
+    </Box>
   );
 };
 

@@ -5,7 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
-  readMessage,
+  readConvo,
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -80,10 +80,11 @@ const saveMessage = async (body) => {
   return data;
 };
 
+// onSenderClient lets the reducer know where the request originated
 const sendMessage = (data, body) => {
   socket.emit("new-message", {
     message: data.message,
-    recipientId: body.recipientId,
+    onSenderClient: false,
     sender: data.sender,
   });
 };
@@ -97,7 +98,7 @@ export const postMessage = (body) => async (dispatch) => {
     if (!body.conversationId) {
       dispatch(addConversation(body.recipientId, data.message));
     } else {
-      dispatch(setNewMessage(data.message));
+      dispatch(setNewMessage(data.message, true));
     }
 
     sendMessage(data, body);
@@ -106,26 +107,26 @@ export const postMessage = (body) => async (dispatch) => {
   }
 };
 
-const saveMessageRead = async (body) => {
+const saveReadMessages = async (body) => {
   const { data } = await axios.patch("/api/messages", body);
   return data;
 };
 
-const markMessageRead = (body) => {
+// onSenderClient lets the reducer know where the request originated
+const markMessagesRead = (body) => {
   socket.emit("read-message", {
-    message: body.message,
-    sender: body.sender,
+    conversationId: body.conversationId,
+    onSenderClient: false,
   });
 };
 
-export const updateMessage = (body) => async (dispatch) => {
+export const patchMessages = (body) => async (dispatch) => {
   try {
-    const data = await saveMessageRead(body);
-
+    const data = await saveReadMessages(body);
     if (data.read) {
-      dispatch(readMessage(body.message));
+      dispatch(readConvo(body.conversationId, true));
     }
-    markMessageRead(body);
+    markMessagesRead(body);
   } catch (error) {
     console.error(error);
   }
