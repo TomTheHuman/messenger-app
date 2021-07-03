@@ -37,7 +37,7 @@ const SenderBubble = (props) => {
       <Box className={classes.bubble}>
         <Typography className={classes.text}>{text}</Typography>
       </Box>
-      <ReadStatus lastMessage={lastMessage} read={read} otherUser={otherUser} />
+      {lastMessage && <ReadStatus read={read} otherUser={otherUser} />}
     </Box>
   );
 };
