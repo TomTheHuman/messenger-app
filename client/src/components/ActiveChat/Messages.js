@@ -16,6 +16,12 @@ const Messages = (props) => {
   const { messages, otherUser, id } = props.conversation;
   const lastIndex = messages.length - 1;
 
+  const reqBody = {
+    conversationId: id,
+    otherUser: otherUser,
+    currentUser: props.user.id,
+  };
+
   // run update messages whenever a chat page is rendered
   updateMessages(props, reqBody);
 
