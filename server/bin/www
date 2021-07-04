@@ -30,8 +30,22 @@ const server = http.createServer(app);
  */
 
 const io = require("socket.io")(server);
+const jwt = require("jsonwebtoken");
+const cookie = require("cookie");
 
-io.on("connection", (socket) => {
+// verify jwt from cookie before socket connect
+io.use((socket, next) => {
+  if (socket.handshake.headers && socket.handshake.headers.cookie) {
+    const cookieData = cookie.parse(socket.handshake.headers.cookie);
+    jwt.verify(cookieData.jwt, process.env.SESSION_SECRET, (err, decoded) => {
+      if (err) return next(new Error("Authenication Error!"));
+      socket.decoded = decoded;
+      next();
+    });
+  } else {
+    next(new Error("Authentication Error!"));
+  }
+}).on("connection", (socket) => {
   socket.on("go-online", (id) => {
     if (!onlineUsers[id]) {
       onlineUsers[id] = true;
