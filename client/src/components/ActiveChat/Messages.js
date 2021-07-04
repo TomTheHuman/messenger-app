@@ -16,13 +16,23 @@ const useStyles = makeStyles(() => ({
   messagesCtnr: {
     overflowY: "scroll",
     height: "100%",
-    // legacy browser support for scrollbar
-    msOverflowStyle: "none",
-    scrollbarWidth: "none",
 
-    // remove scrollbar
+    // legacy browser will use standard scrollbar
+    // Modern browsers will use modern scrollbar
     "&::-webkit-scrollbar": {
-      display: "none",
+      width: "12px",
+      height: "12px",
+    },
+    "&::-webkit-scrollbar-track": {
+      background: "#F5F5F5",
+      borderRadius: "10px",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      borderRadius: "10px",
+      background: "#CCC",
+    },
+    "&::-webkit-scrollbar-thumb:hover": {
+      background: "#999",
     },
   },
 }));

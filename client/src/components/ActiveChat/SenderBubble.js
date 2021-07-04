@@ -8,6 +8,7 @@ const useStyles = makeStyles(() => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-end",
+    marginRight: "20px",
   },
   date: {
     fontSize: 11,
