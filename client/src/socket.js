@@ -20,7 +20,6 @@ socket.on("connect", () => {
     store.dispatch(removeOfflineUser(id));
   });
   socket.on("new-message", (data) => {
-    console.log("NEW MESSAGE");
     store.dispatch(
       setNewMessage(data.message, data.onSenderClient, data.sender)
     );
