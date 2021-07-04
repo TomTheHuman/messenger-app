@@ -48,10 +48,11 @@ export const login = (credentials) => async (dispatch) => {
   }
 };
 
-export const logout = (id) => async (dispatch) => {
+export const logout = (id, convoIds) => async (dispatch) => {
   try {
     await axios.delete("/auth/logout");
     dispatch(gotUser({}));
+    socket.emit("leave-rooms", { id: id, convoIds: convoIds });
     socket.emit("logout", id);
   } catch (error) {
     console.error(error);
@@ -64,6 +65,11 @@ export const fetchConversations = () => async (dispatch) => {
   try {
     const { data } = await axios.get("/api/conversations");
     dispatch(gotConversations(data));
+
+    const convoIds = data.map((convo) => convo.id);
+    socket.emit("join-rooms", {
+      convoIds: convoIds,
+    });
   } catch (error) {
     console.error(error);
   }
@@ -80,6 +86,7 @@ const sendMessage = (data, body) => {
     message: data.message,
     onSenderClient: false,
     sender: data.sender,
+    recipientId: body.recipientId,
   });
 };
 
@@ -111,6 +118,7 @@ const markMessagesRead = (body) => {
   socket.emit("read-message", {
     conversationId: body.conversationId,
     onSenderClient: false,
+    recipientId: body.otherUser.id,
   });
 };
 
