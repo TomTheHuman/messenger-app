@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Box } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core";
 import { SenderBubble, OtherUserBubble } from "../ActiveChat";
 import moment from "moment";
 import { connect } from "react-redux";
@@ -11,10 +12,37 @@ async function updateMessages(props, reqBody) {
   }
 }
 
+const useStyles = makeStyles(() => ({
+  messagesCtnr: {
+    overflowY: "scroll",
+    height: "100%",
+    // legacy browser support for scrollbar
+    msOverflowStyle: "none",
+    scrollbarWidth: "none",
+
+    // remove scrollbar
+    "&::-webkit-scrollbar": {
+      display: "none",
+    },
+  },
+}));
+
 const Messages = (props) => {
   const { userId } = props;
   const { messages, otherUser, id } = props.conversation;
+  const classes = useStyles();
   const lastIndex = messages.length - 1;
+
+  const messagesEndRef = useRef(null);
+
+  // scrolls to blank div at bottom of chat window on render
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  });
 
   const reqBody = {
     conversationId: id,
@@ -26,7 +54,7 @@ const Messages = (props) => {
   updateMessages(props, reqBody);
 
   return (
-    <Box>
+    <Box className={classes.messagesCtnr}>
       {messages.map((message, index) => {
         const time = moment(message.createdAt).format("h:mm");
         const lastMessage = index === lastIndex;
@@ -49,6 +77,7 @@ const Messages = (props) => {
           />
         );
       })}
+      <div ref={messagesEndRef} />
     </Box>
   );
 };

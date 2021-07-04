@@ -9,6 +9,7 @@ const useStyles = makeStyles(() => ({
     display: "flex",
     flexGrow: 8,
     flexDirection: "column",
+    height: "100%",
   },
   chatContainer: {
     marginLeft: 41,
@@ -17,6 +18,7 @@ const useStyles = makeStyles(() => ({
     flexDirection: "column",
     flexGrow: 1,
     justifyContent: "space-between",
+    height: "78vh",
   },
 }));
 
