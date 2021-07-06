@@ -35,7 +35,8 @@ class Home extends Component {
   }
 
   handleLogout = async () => {
-    await this.props.logout(this.props.user.id);
+    const convoIds = this.props.conversations.map((convo) => convo.id);
+    await this.props.logout(this.props.user.id, convoIds);
   };
 
   render() {
@@ -70,8 +71,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    logout: (id) => {
-      dispatch(logout(id));
+    logout: (id, convoIds) => {
+      dispatch(logout(id, convoIds));
       dispatch(clearOnLogout());
     },
     fetchConversations: () => {
