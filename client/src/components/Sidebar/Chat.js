@@ -5,19 +5,21 @@ import { withStyles } from "@material-ui/core/styles";
 import { setActiveChat } from "../../store/activeConversation";
 import { connect } from "react-redux";
 
-const styles = {
+const styles = (theme) => ({
   root: {
-    borderRadius: 8,
+    borderRadius: theme.spacing(1),
     height: 80,
     boxShadow: "0 2px 10px 0 rgba(88,133,196,0.05)",
-    marginBottom: 10,
+    marginBottom: theme.spacing(1.25),
     display: "flex",
     alignItems: "center",
+    width: "100%",
+    overflow: "hidden",
     "&:hover": {
       cursor: "grab",
     },
   },
-};
+});
 
 class Chat extends Component {
   handleClick = async (conversation) => {
