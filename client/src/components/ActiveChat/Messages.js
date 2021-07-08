@@ -12,7 +12,7 @@ async function updateMessages(props, reqBody) {
   }
 }
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   messagesCtnr: {
     overflowY: "scroll",
     height: "100%",
@@ -20,19 +20,19 @@ const useStyles = makeStyles(() => ({
     // legacy browser will use standard scrollbar
     // Modern browsers will use modern scrollbar
     "&::-webkit-scrollbar": {
-      width: "12px",
-      height: "12px",
+      width: theme.spacing(1.5),
+      height: theme.spacing(1.5),
     },
     "&::-webkit-scrollbar-track": {
-      background: "#F5F5F5",
-      borderRadius: "10px",
+      background: theme.palette.scrollBar.track,
+      borderRadius: theme.spacing(1.25),
     },
     "&::-webkit-scrollbar-thumb": {
-      borderRadius: "10px",
-      background: "#CCC",
+      background: theme.palette.scrollBar.thumb,
+      borderRadius: theme.spacing(1.25),
     },
     "&::-webkit-scrollbar-thumb:hover": {
-      background: "#999",
+      background: theme.palette.scrollBar.thumbHover,
     },
   },
 }));
@@ -52,7 +52,7 @@ const Messages = (props) => {
 
   useEffect(() => {
     scrollToBottom();
-  });
+  }, [props]);
 
   const reqBody = {
     conversationId: id,

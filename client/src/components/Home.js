@@ -8,11 +8,17 @@ import { ActiveChat } from "./ActiveChat";
 import { logout, fetchConversations } from "../store/utils/thunkCreators";
 import { clearOnLogout } from "../store/index";
 
-const styles = {
-  root: {
-    height: "97vh",
+const styles = (theme) => ({
+  logout: {
+    height: "5vh",
   },
-};
+  main: {
+    height: "95vh",
+    [theme.breakpoints.down("sm")]: {
+      flexWrap: "wrap",
+    },
+  },
+});
 
 class Home extends Component {
   constructor(props) {
@@ -49,13 +55,21 @@ class Home extends Component {
     return (
       <>
         {/* logout button will eventually be in a dropdown next to username */}
-        <Button className={classes.logout} onClick={this.handleLogout}>
-          Logout
-        </Button>
-        <Grid container component="main" className={classes.root}>
-          <CssBaseline />
-          <SidebarContainer />
-          <ActiveChat />
+        <Grid container>
+          <Button className={classes.logout} onClick={this.handleLogout}>
+            Logout
+          </Button>
+          <Grid
+            container
+            flexGrow={1}
+            wrap="nowrap"
+            component="main"
+            className={classes.main}
+          >
+            <CssBaseline />
+            <SidebarContainer />
+            <ActiveChat />
+          </Grid>
         </Grid>
       </>
     );

@@ -20,5 +20,10 @@ export const theme = createMuiTheme({
   palette: {
     primary: { main: "#3A8DFF", hover: "#1C69D4" },
     secondary: { main: "#B0B0B0" },
+    scrollBar: {
+      track: "#F5F5F5",
+      thumb: "#CCC",
+      thumbHover: "#999",
+    },
   },
 });

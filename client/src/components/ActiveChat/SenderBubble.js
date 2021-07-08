@@ -3,24 +3,24 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Box, Typography } from "@material-ui/core";
 import { ReadStatus } from "../ActiveChat";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-end",
-    marginRight: "20px",
+    marginRight: theme.spacing(2.5),
   },
   date: {
     fontSize: 11,
     color: "#BECCE2",
     fontWeight: "bold",
-    marginBottom: 5,
+    marginBottom: theme.spacing(1),
   },
   text: {
     fontSize: 14,
     color: "#91A3C0",
     letterSpacing: -0.2,
-    padding: 8,
+    padding: theme.spacing(1),
     fontWeight: "bold",
   },
   bubble: {
