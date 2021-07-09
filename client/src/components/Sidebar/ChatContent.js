@@ -8,6 +8,20 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "space-between",
     marginLeft: 20,
     flexGrow: 1,
+    width: "100%",
+    overflow: "hidden",
+  },
+  details: {
+    flexGrow: 1,
+    width: "65%",
+  },
+  countContainer: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "15%",
+    boxSizing: "border-box",
+    margin: "0px 20px",
   },
   username: {
     fontWeight: "bold",
@@ -17,6 +31,18 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 12,
     color: "#9CADC8",
     letterSpacing: -0.17,
+    whiteSpace: "nowrap",
+    wordWrap: "break-word",
+    overflow: "hidden",
+  },
+  previewTextBold: {
+    fontSize: 12,
+    color: "#000",
+    letterSpacing: -0.17,
+    fontWeight: "bold",
+    whiteSpace: "nowrap",
+    wordWrap: "break-word",
+    overflow: "hidden",
   },
   notification: {
     height: 20,
@@ -32,6 +58,17 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     borderRadius: 10,
   },
+  bubble: {
+    backgroundColor: "#3A8DFF",
+    borderRadius: "15px",
+    padding: "2px 8px",
+  },
+  bubbleText: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    letterSpacing: -0.2,
+  },
 }));
 
 const ChatContent = (props) => {
@@ -39,16 +76,36 @@ const ChatContent = (props) => {
 
   const { conversation } = props;
   const { latestMessageText, otherUser } = conversation;
+  const unreadCount = conversation.unreadMessages.otherUser.length;
 
   return (
     <Box className={classes.root}>
-      <Box>
+      <Box className={classes.details}>
         <Typography className={classes.username}>
           {otherUser.username}
         </Typography>
-        <Typography className={classes.previewText}>
+        <Typography
+          className={
+            unreadCount > 0 ? classes.previewTextBold : classes.previewText
+          }
+        >
           {latestMessageText}
         </Typography>
+      </Box>
+      {unreadCount > 0 && <UnreadCount unread={unreadCount} />}
+    </Box>
+  );
+};
+
+const UnreadCount = (props) => {
+  const classes = useStyles();
+
+  return (
+    <Box className={classes.countContainer}>
+      <Box>
+        <Box className={classes.bubble}>
+          <Typography className={classes.bubbleText}>{props.unread}</Typography>
+        </Box>
       </Box>
     </Box>
   );
