@@ -1,21 +1,16 @@
 const router = require("express").Router();
-const { Conversation, Message } = require("../../db/models");
+const { Conversation, Message, User } = require("../../db/models");
 const onlineUsers = require("../../onlineUsers");
 
-// expects {recipientId, text, conversationId } in body (conversationId will be null if no conversation exists yet)
+// expects {recipientId, text } in body
 router.post("/", async (req, res, next) => {
   try {
     if (!req.user) {
       return res.sendStatus(401);
     }
     const senderId = req.user.id;
-    const { recipientId, text, conversationId, sender } = req.body;
+    const { recipientId, text, sender } = req.body;
 
-    // if we already know conversation id, we can save time and just add it to message and return
-    if (conversationId) {
-      const message = await Message.create({ senderId, text, conversationId });
-      return res.json({ message, sender });
-    }
     // if we don't have conversation id, find a conversation to make sure it doesn't already exist
     let conversation = await Conversation.findConversation(
       senderId,
@@ -28,7 +23,7 @@ router.post("/", async (req, res, next) => {
         user1Id: senderId,
         user2Id: recipientId,
       });
-      if (onlineUsers.includes(sender.id)) {
+      if (onlineUsers[sender.id]) {
         sender.online = true;
       }
     }
@@ -41,6 +36,30 @@ router.post("/", async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+// expects {message} in body
+// returns true if updated successfully
+router.patch("/", async (req, res, next) => {
+  if (!req.body.conversationId) {
+    return res.sendStatus(401);
+  }
+
+  let read = Boolean(
+    await Message.update(
+      { read: true },
+      {
+        include: [{ model: Conversation }, { model: User }],
+        where: {
+          conversationId: req.body.conversationId,
+          senderId: req.body.otherUser.id,
+        },
+      }
+    ).catch((error) => {
+      next(error);
+    })
+  );
+  res.json({ read });
 });
 
 module.exports = router;

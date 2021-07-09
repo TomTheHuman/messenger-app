@@ -50,6 +50,9 @@ router.get("/", async (req, res, next) => {
 
     for (let i = 0; i < conversations.length; i++) {
       const convo = conversations[i];
+      // Reverse messages to ascending order
+      convo.messages.reverse();
+
       const convoJSON = convo.toJSON();
 
       // set a property "otherUser" so that frontend will have easier access
@@ -61,15 +64,40 @@ router.get("/", async (req, res, next) => {
         delete convoJSON.user2;
       }
 
+      // find all unread messages
+      // add to respective list based on sender
+      const unreadMessages = {
+        otherUser: [],
+        currentUser: [],
+      };
+
+      for (let i = 0; i < convoJSON.messages.length; i++) {
+        if (!convoJSON.messages[i].read) {
+          let message = {
+            index: i,
+            senderId: convoJSON.messages[i].senderId,
+          };
+          if (convoJSON.messages[i].senderId !== convoJSON.otherUser.id) {
+            unreadMessages.currentUser.push(message);
+          } else {
+            unreadMessages.otherUser.push(message);
+          }
+        }
+      }
+
+      convoJSON.unreadMessages = unreadMessages;
+
       // set property for online status of the other user
-      if (onlineUsers.includes(convoJSON.otherUser.id)) {
+      if (onlineUsers[convoJSON.otherUser.id]) {
         convoJSON.otherUser.online = true;
       } else {
         convoJSON.otherUser.online = false;
       }
 
       // set properties for notification count and latest message preview
-      convoJSON.latestMessageText = convoJSON.messages[0].text;
+      // accounts for messages retreived in ascending chronological order
+      let lastMessageIndex = convoJSON.messages.length - 1;
+      convoJSON.latestMessageText = convoJSON.messages[lastMessageIndex].text;
       conversations[i] = convoJSON;
     }
 

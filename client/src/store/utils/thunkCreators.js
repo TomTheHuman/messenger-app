@@ -5,15 +5,9 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
+  readConvo,
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
-
-axios.interceptors.request.use(async function (config) {
-  const token = await localStorage.getItem("messenger-token");
-  config.headers["x-access-token"] = token;
-
-  return config;
-});
 
 // USER THUNK CREATORS
 
@@ -35,7 +29,6 @@ export const fetchUser = () => async (dispatch) => {
 export const register = (credentials) => async (dispatch) => {
   try {
     const { data } = await axios.post("/auth/register", credentials);
-    await localStorage.setItem("messenger-token", data.token);
     dispatch(gotUser(data));
     socket.emit("go-online", data.id);
   } catch (error) {
@@ -47,7 +40,6 @@ export const register = (credentials) => async (dispatch) => {
 export const login = (credentials) => async (dispatch) => {
   try {
     const { data } = await axios.post("/auth/login", credentials);
-    await localStorage.setItem("messenger-token", data.token);
     dispatch(gotUser(data));
     socket.emit("go-online", data.id);
   } catch (error) {
@@ -56,11 +48,11 @@ export const login = (credentials) => async (dispatch) => {
   }
 };
 
-export const logout = (id) => async (dispatch) => {
+export const logout = (id, convoIds) => async (dispatch) => {
   try {
     await axios.delete("/auth/logout");
-    await localStorage.removeItem("messenger-token");
     dispatch(gotUser({}));
+    socket.emit("leave-rooms", { id: id, convoIds: convoIds });
     socket.emit("logout", id);
   } catch (error) {
     console.error(error);
@@ -73,6 +65,11 @@ export const fetchConversations = () => async (dispatch) => {
   try {
     const { data } = await axios.get("/api/conversations");
     dispatch(gotConversations(data));
+
+    const convoIds = data.map((convo) => convo.id);
+    socket.emit("join-rooms", {
+      convoIds: convoIds,
+    });
   } catch (error) {
     console.error(error);
   }
@@ -83,27 +80,55 @@ const saveMessage = async (body) => {
   return data;
 };
 
+// onSenderClient lets the reducer know where the request originated
 const sendMessage = (data, body) => {
   socket.emit("new-message", {
     message: data.message,
-    recipientId: body.recipientId,
+    onSenderClient: false,
     sender: data.sender,
+    recipientId: body.recipientId,
   });
 };
 
-// message format to send: {recipientId, text, conversationId}
+// message format to send: {recipientId, text}
 // conversationId will be set to null if its a brand new conversation
-export const postMessage = (body) => (dispatch) => {
+export const postMessage = (body) => async (dispatch) => {
   try {
-    const data = saveMessage(body);
+    const data = await saveMessage(body);
 
     if (!body.conversationId) {
       dispatch(addConversation(body.recipientId, data.message));
     } else {
-      dispatch(setNewMessage(data.message));
+      dispatch(setNewMessage(data.message, true));
     }
 
     sendMessage(data, body);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const saveReadMessages = async (body) => {
+  const { data } = await axios.patch("/api/messages", body);
+  return data;
+};
+
+// onSenderClient lets the reducer know where the request originated
+const markMessagesRead = (body) => {
+  socket.emit("read-message", {
+    conversationId: body.conversationId,
+    onSenderClient: false,
+    recipientId: body.otherUser.id,
+  });
+};
+
+export const patchMessages = (body) => async (dispatch) => {
+  try {
+    const data = await saveReadMessages(body);
+    if (data.read) {
+      dispatch(readConvo(body.conversationId, true));
+    }
+    markMessagesRead(body);
   } catch (error) {
     console.error(error);
   }
